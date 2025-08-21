@@ -1,13 +1,12 @@
-
 from fastapi import FastAPI,UploadFile,File
 from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn
 import torch
 from torchvision.transforms import transforms
 from PIL import Image
 import io
 
-model=torch.jit.load('BrainTumorModel1.pt',map_location=torch.device("cpu"))
+model=torch.jit.load('Breast_Cancer.pt',map_location=torch.device("cpu"))
 model.eval()
 
 
@@ -46,6 +45,9 @@ async def Process(file:UploadFile=File(...)):
          _,predicted=torch.max(output,1)
          className=[0,1][predicted.item()]
          if className==0:
-              return "Model Detected Cancer in Brest."
-         else:
               return "Model does not Detected any Cancer in Brest."
+         elif className==1:
+              return "Model Detected Cancer in Brest."
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
