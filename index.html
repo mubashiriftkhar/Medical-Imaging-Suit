@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Medical Image Analysis Suite</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- Navbar -->
+  <header class="bg-blue-600 shadow-lg">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold text-white">🩺 Medical Image Analysis Suite</h1>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl mx-auto p-6">
+    <h2 class="text-xl font-semibold mb-6 text-gray-700">Select an Analysis Service</h2>
+
+    <!-- Service Cards -->
+    <div id="service-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div onclick="selectService('BreastCancer')" class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:shadow-xl transition">
+        <i class="fa-solid fa-ribbon text-4xl text-pink-500 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800">Breast Cancer</h3>
+        <p class="text-gray-500 text-sm">Upload scans to detect breast cancer.</p>
+      </div>
+      <div onclick="selectService('BrainTumor')" class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:shadow-xl transition">
+        <i class="fa-solid fa-brain text-4xl text-purple-500 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800">Brain Tumor</h3>
+        <p class="text-gray-500 text-sm">Analyze MRI scans for tumor detection.</p>
+      </div>
+      <div onclick="selectService('Pneumonia')" class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:shadow-xl transition">
+        <i class="fa-solid fa-lungs text-4xl text-blue-400 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800">Pneumonia</h3>
+        <p class="text-gray-500 text-sm">Detect pneumonia from chest X-rays.</p>
+      </div>
+      <div onclick="selectService('KidneyStone')" class="bg-white shadow-md rounded-2xl p-6 cursor-pointer hover:shadow-xl transition">
+        <i class="fa-solid fa-kidneys text-4xl text-green-500 mb-4"></i>
+        <h3 class="text-lg font-semibold text-gray-800">Kidney Stone</h3>
+        <p class="text-gray-500 text-sm">Analyze scans for kidney stone detection.</p>
+      </div>
+    </div>
+
+    <!-- Upload Section -->
+    <div id="upload-section" class="hidden mt-10 bg-white shadow-md rounded-2xl p-6">
+      <h3 class="text-lg font-semibold text-gray-800 mb-4">Upload Image for <span id="selected-service-name"></span></h3>
+      <input id="file-input" type="file" accept="image/*" class="mb-4">
+      <button onclick="uploadImage()" class="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+        Analyze
+      </button>
+      <div id="result" class="mt-4 text-gray-700 font-medium"></div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-gray-200 text-center py-4 text-sm text-gray-600">
+    © 2025 Medical Image Analysis Suite. All rights reserved.
+  </footer>
+
+  <script>
+    let selectedService = "BreastCancer";
+
+    function selectService(service) {
+      selectedService = service;
+      document.getElementById("selected-service-name").innerText = service.replace(/([A-Z])/g, ' $1').trim();
+      document.getElementById("upload-section").classList.remove("hidden");
+      document.getElementById("result").innerHTML = "";
+    }
+
+    async function uploadImage() {
+      const fileInput = document.getElementById("file-input");
+      if (!fileInput.files.length) {
+        alert("Please select an image first.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", fileInput.files[0]);
+      formData.append("Selection", selectedService);
+
+      try {
+        const res = await fetch("http://127.0.0.1:8000/upload", {
+          method: "POST",
+          body: formData,
+        });
+        const data = await res.json();
+        document.getElementById("result").innerText = data.result;
+      } catch (err) {
+        document.getElementById("result").innerText = "Error connecting to backend.";
+      }
+    }
+  </script>
+</body>
+</html>
